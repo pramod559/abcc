@@ -1,30 +1,79 @@
+name: CI
+
 on:
   push:
-    branches:
-      - master
-      
-name: Build My App
- 
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
 jobs:
   build:
-    name: Build and Release new  apk
-    runs-on: ubantu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v2
-        with:
-          distribution: 'zulu'
-          java-version: '11'
-          
-      - uses: subosito/flutter-action@v2
-        with: 
-          channel: 'stable'
-      - run: flutter pub get
-      - run: flutter build apk --release --split-per-abi
+    runs-on: ubuntu-latest
 
-      - name: Push to Releases
-        uses: ncipollo/release-action@v1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
         with:
-          artifacts: "build/app/outputs/apk/release/*"
-          tag: v0.0.1
-          token: ${{secrets.TOKEN}}  
+          distribution: 'adopt'
+          java-version: '12'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '2.8.1'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/release/app-release.apk
+
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+
+
+# on:
+#   push:
+#     branches:
+#       - master
+      
+# name: Build My App
+ 
+# jobs:
+#   build:
+#     name: Build and Release new  apk
+#     runs-on: ubantu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#       - uses: actions/setup-java@v2
+#         with:
+#           distribution: 'zulu'
+#           java-version: '11'
+          
+#       - uses: subosito/flutter-action@v2
+#         with: 
+#           channel: 'stable'
+#       - run: flutter pub get
+#       - run: flutter build apk --release --split-per-abi
+
+#       - name: Push to Releases
+#         uses: ncipollo/release-action@v1
+#         with:
+#           artifacts: "build/app/outputs/apk/release/*"
+#           tag: v0.0.1
+#           token: ${{secrets.TOKEN}}  
